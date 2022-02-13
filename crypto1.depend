@@ -1,0 +1,37 @@
+# depslib dependency file v1.0
+1644578582 source:c:\users\b13ma\desktop\dtu\3\modern cryptology\aes_attack\hello_world\aes.c
+	<stdio.h>
+	<stdint.h>
+	<string.h>
+	"aes.h"
+
+1644578582 c:\users\b13ma\desktop\dtu\3\modern cryptology\aes_attack\hello_world\aes.h
+	<stdint.h>
+
+1644769355 source:c:\users\b13ma\desktop\dtu\3\modern cryptology\aes_attack\hello_world\lambda_set.c
+	<time.h>
+	<stdint.h>
+	<stdlib.h>
+	<string.h>
+
+1644772016 source:c:\users\b13ma\desktop\dtu\3\modern cryptology\aes_attack\hello_world\main.c
+	<stdio.h>
+	<stdint.h>
+	<stdlib.h>
+	<string.h>
+	<time.h>
+	"aes.h"
+	"lambda_set.h"
+	"square_attack.h"
+
+1644578582 c:\users\b13ma\desktop\dtu\3\modern cryptology\aes_attack\hello_world\lambda_set.h
+	<stdint.h>
+
+1644578582 c:\users\b13ma\desktop\dtu\3\modern cryptology\aes_attack\hello_world\square_attack.h
+	<stdint.h>
+	<stdbool.h>
+
+1644578582 source:c:\users\b13ma\desktop\dtu\3\modern cryptology\aes_attack\hello_world\square_attack.c
+	<stdint.h>
+	<stdbool.h>
+
