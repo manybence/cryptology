@@ -65,7 +65,7 @@ static bool is_done(int16_t* array)
 	for (int i = 0; i < 16; i++) {
 		size = 0;
 		for (int j = 0; j < 256; j++) {
-			if (array[i*256 + j] != -1) {
+			if (array[256*i + j] != -1) {
 				size++;
 			}
 		}
@@ -79,6 +79,8 @@ static bool is_done(int16_t* array)
 /** Main function *************************************************************/
 int main(void)
 {
+	lambda_set_seed_rng();
+
 	//Initialize guess arrays
 	for (int i = 0; i < 16; i++) {
 		for (int j = 0; j < 256; j++) {
@@ -113,10 +115,7 @@ int main(void)
 
 	/* Keep generating new guesses until there's only one per position */
 	bool done = false;
-	int n = 0;
 	while (!done) {
-		printf("%d\n", n++);
-
 		// Generate new lambda set
 		lambda_set_generate((uint8_t*)lambda_set);
 
