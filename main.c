@@ -28,7 +28,6 @@ uint8_t lambda_set[256][16];
 uint8_t enc_lambda_set[256][16];
 int16_t guesses[16][256];
 int16_t guess_new[16][256];
-bool single[16];
 uint8_t solution[16];
 bool done = false;
 
@@ -84,12 +83,12 @@ int main(void)
 {
     //Initialize guess arrays
     for (int i = 0; i < 16; i++){
-        single[i] = false;
         for (int j = 0; j < 256; j++){
             guesses[i][j] = -1;
             guess_new[i][j] = -1;
         }
     }
+
 
 	/* First iteration of checking guesses */
 	// Generate new lambda set
@@ -112,6 +111,7 @@ int main(void)
 			}
 		}
 	}
+
 
 	/* Keep generating new guesses until there's only one per position */
     bool done = false;
@@ -137,31 +137,9 @@ int main(void)
             }
         }
 
-        //Display the stored guesses for each byte
+        // Compare guesses
         for (int i = 0; i < 16; i++){
-
-            //Display original guesses
-            //printf("\nGuess (%d): ", i);
-            //for (int j = 0; j < 256; j++){
-            //    if (guesses[i][j] != -1)
-            //        printf("%02x, ", guesses[i][j]);
-            //}
-
-            //Display new guesses
-            //printf("\nNew guesses (%d): ", i);
-            //for (int j = 0; j < 256; j++){
-            //    if (guess_new[i][j] != -1)
-            //        printf("%02x, ", guess_new[i][j]);
-            //}
-
-            //Discard the wrong guesses
             merge_arrays(guesses[i], guess_new[i]);
-            //printf("\nMerged guesses (%d): ", i);
-            //for (int j = 0; j < 256; j++){
-            //    if (guesses[i][j] != -1)
-            //        printf("%02x, ", guesses[i][j]);
-            //}
-            //printf("single %d \n", single[i]);
         }
 
         //Check if done

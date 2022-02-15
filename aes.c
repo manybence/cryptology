@@ -148,17 +148,6 @@ static void key_schedule(uint8_t* prev_key, uint8_t* new_key, int key_round)
 	}
 }
 
-static void print_state(uint8_t* s)
-{
-	char aux[34];
-	for (int i = 0; i < 16; i++) {
-		sprintf(aux+i*2, "%02x", s[i]);
-	}
-	aux[32] = '\n';
-	aux[33] = '\0';
-	printf(aux);
-}
-
 /** Public functions **********************************************************/
 void aes_encrypt(uint8_t* msg, uint8_t* key, uint8_t* encrypt_msg,
 		int rounds)
@@ -189,5 +178,4 @@ void aes_encrypt(uint8_t* msg, uint8_t* key, uint8_t* encrypt_msg,
 	sub_bytes(encrypt_msg);
 	shift_rows(encrypt_msg);
 	add_round_key(encrypt_msg, keys[rounds-1]);
-	print_state(keys[rounds-1]);
 }
