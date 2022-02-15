@@ -1,1 +1,4 @@
 main
+bin/
+obj/
+crypto1.*
