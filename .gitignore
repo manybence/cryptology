@@ -2,3 +2,4 @@ main
 bin/
 obj/
 crypto1.*
+*.o
