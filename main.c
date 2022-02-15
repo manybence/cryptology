@@ -5,6 +5,9 @@
 #include "lambda_set.h"
 #include "square_attack.h"
 
+
+#define ROUNDS 4
+
 /** Constants *****************************************************************/
 static uint8_t key[16] = {
 	0x2b, 0x7e, 0x15, 0x16,
@@ -81,6 +84,12 @@ int main(void)
 {
 	lambda_set_seed_rng();
 
+	printf("The cipher key is:             ");
+	for (int i = 0; i < 16; i++) {
+		printf("%02x", key[i]);
+	}
+	printf("\n");
+
 	//Initialize guess arrays
 	for (int i = 0; i < 16; i++) {
 		for (int j = 0; j < 256; j++) {
@@ -97,7 +106,7 @@ int main(void)
 	// Encrypt new lambda set
 	for (int i = 0; i < 256; i++) {
 		aes_encrypt((uint8_t*)lambda_set+i*16, key,
-				(uint8_t*)enc_lambda_set+i*16, 4);
+				(uint8_t*)enc_lambda_set+i*16, ROUNDS);
 	}
 
 	// Fill array with guesses
@@ -122,10 +131,10 @@ int main(void)
 		// Encrypt new lambda set
 		for (int i = 0; i < 256; i++) {
 			aes_encrypt((uint8_t*)lambda_set+i*16, key,
-					(uint8_t*)enc_lambda_set+i*16, 4);
+					(uint8_t*)enc_lambda_set+i*16, ROUNDS);
 		}
 
-		//Fill array with new guesses
+		// Fill array with new guesses
 		for (int i = 0; i < 16; i++) {
 			pos = 0;
 			for (int j = 0; j < 256; j++) {
@@ -141,21 +150,26 @@ int main(void)
 			merge_arrays(guesses[i], guess_new[i]);
 		}
 
-		//Check if done
+		// Check if done
 		done = is_done((int16_t*)guesses);
 	}
 
-	//Assemble the key
+	// Assemble round key
+	uint8_t round_key[16];
 	for (int i = 0; i < 16; i++) {
 		for (int j = 0; j < 256; j++) {
 			if (guesses[i][j] != -1)
-				solution[i] = guesses[i][j];
+				round_key[i] = guesses[i][j];
 		}
 	}
 
+	// Recover cipher key
+	uint8_t cipher_key[16];
+	inv_key_schedule(round_key, cipher_key, ROUNDS);
+
 	printf("Successful attack, the key is: ");
 	for (int i = 0; i < 16; i++) {
-		printf("%02x", solution[i]);
+		printf("%02x", cipher_key[i]);
 	}
 	printf("\n");
 
