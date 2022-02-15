@@ -1,21 +1,11 @@
 #include <stdio.h>
 #include <stdint.h>
-#include <stdlib.h>
-#include <string.h>
-#include <time.h>
 
 #include "aes.h"
 #include "lambda_set.h"
 #include "square_attack.h"
 
 /** Constants *****************************************************************/
-static uint8_t msg[16] = {
-	0x32, 0x43, 0xf6, 0xa8,
-	0x88, 0x5a, 0x30, 0x8d,
-	0x31, 0x31, 0x98, 0xa2,
-	0xe0, 0x37, 0x07, 0x34
-};
-
 static uint8_t key[16] = {
 	0x2b, 0x7e, 0x15, 0x16,
 	0x28, 0xae, 0xd2, 0xa6,
@@ -24,12 +14,12 @@ static uint8_t key[16] = {
 };
 
 /** Global variables **********************************************************/
-uint8_t lambda_set[256][16];
-uint8_t enc_lambda_set[256][16];
-int16_t guesses[16][256];
-int16_t guess_new[16][256];
-uint8_t solution[16];
-bool done = false;
+static uint8_t lambda_set[256][16];
+static uint8_t enc_lambda_set[256][16];
+static int16_t guesses[16][256];
+static int16_t guess_new[16][256];
+static uint8_t solution[16];
+static bool done = false;
 
 /** Function prototypes *******************************************************/
 static void print_state(uint8_t* s);
@@ -48,46 +38,54 @@ static void print_state(uint8_t* s)
 	printf(aux);
 }
 
-static void merge_arrays(int16_t* old, int16_t* new_list){
-    bool found;
-    for (int i = 0; i < 256; i++){
-        if (old[i] != -1){
-            found = false;
-            for (int j = 0; j < 256; j++){
-                if (old[i] == new_list[j]){
-                    found = true;
-                    break;
-                }
-            }
-            if (!found) old[i] = -1;
-        }
-    }
+static void merge_arrays(int16_t* old, int16_t* new_list)
+{
+	bool found;
+	for (int i = 0; i < 256; i++) {
+		if (old[i] != -1) {
+
+			found = false;
+			for (int j = 0; j < 256; j++) {
+				if (old[i] == new_list[j]) {
+					found = true;
+					break;
+				}
+			}
+			if (!found) {
+				old[i] = -1;
+			}
+
+		}
+	}
 }
 
-static bool is_done(int16_t* array){
+static bool is_done(int16_t* array)
+{
 	int size;
 	for (int i = 0; i < 16; i++) {
 		size = 0;
-		for (int j = 0; j < 256; j++){
-			if (array[i*256 + j] != -1) size++;
+		for (int j = 0; j < 256; j++) {
+			if (array[i*256 + j] != -1) {
+				size++;
+			}
 		}
 		if (size > 1) {
 			return false;
 		}
 	}
-    return true;
+	return true;
 }
 
 /** Main function *************************************************************/
 int main(void)
 {
-    //Initialize guess arrays
-    for (int i = 0; i < 16; i++){
-        for (int j = 0; j < 256; j++){
-            guesses[i][j] = -1;
-            guess_new[i][j] = -1;
-        }
-    }
+	//Initialize guess arrays
+	for (int i = 0; i < 16; i++) {
+		for (int j = 0; j < 256; j++) {
+			guesses[i][j] = -1;
+			guess_new[i][j] = -1;
+		}
+	}
 
 
 	/* First iteration of checking guesses */
@@ -114,49 +112,53 @@ int main(void)
 
 
 	/* Keep generating new guesses until there's only one per position */
-    bool done = false;
-    while (!done){
+	bool done = false;
+	int n = 0;
+	while (!done) {
+		printf("%d\n", n++);
 
-        // Generate new lambda set
-        lambda_set_generate((uint8_t*)lambda_set);
+		// Generate new lambda set
+		lambda_set_generate((uint8_t*)lambda_set);
 
-        // Encrypt new lambda set
-        for (int i = 0; i < 256; i++) {
-            aes_encrypt((uint8_t*)lambda_set+i*16, key,
-                    (uint8_t*)enc_lambda_set+i*16, 4);
-        }
+		// Encrypt new lambda set
+		for (int i = 0; i < 256; i++) {
+			aes_encrypt((uint8_t*)lambda_set+i*16, key,
+					(uint8_t*)enc_lambda_set+i*16, 4);
+		}
 
-        //Fill array with new guesses
-        for (int i = 0; i < 16; i++) {
-            pos = 0;
-            for (int j = 0; j < 256; j++) {
-                if (check_guess((uint8_t*)enc_lambda_set, j, i)) {
-                    guess_new[i][pos] = j;
-                    pos++;
-                }
-            }
-        }
+		//Fill array with new guesses
+		for (int i = 0; i < 16; i++) {
+			pos = 0;
+			for (int j = 0; j < 256; j++) {
+				if (check_guess((uint8_t*)enc_lambda_set, j, i)) {
+					guess_new[i][pos] = j;
+					pos++;
+				}
+			}
+		}
 
-        // Compare guesses
-        for (int i = 0; i < 16; i++){
-            merge_arrays(guesses[i], guess_new[i]);
-        }
+		// Compare guesses
+		for (int i = 0; i < 16; i++) {
+			merge_arrays(guesses[i], guess_new[i]);
+		}
 
-        //Check if done
+		//Check if done
 		done = is_done((int16_t*)guesses);
-    }
+	}
 
 	//Assemble the key
-	for (int i = 0; i < 16; i++){
-		for (int j = 0; j < 256; j++){
+	for (int i = 0; i < 16; i++) {
+		for (int j = 0; j < 256; j++) {
 			if (guesses[i][j] != -1)
 				solution[i] = guesses[i][j];
 		}
 	}
 
-	printf("\nSuccessful attack, the key is: ");
-	for (int i = 0; i < 16; i++)
+	printf("Successful attack, the key is: ");
+	for (int i = 0; i < 16; i++) {
 		printf("%02x", solution[i]);
+	}
+	printf("\n");
 
 	return 0;
 }
