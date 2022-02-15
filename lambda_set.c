@@ -21,6 +21,11 @@ void lambda_set_seed_rng(void)
 	srand((unsigned) time(&t));
 }
 
+void lambda_set_generate_key(uint8_t* key)
+{
+	generate_random_data(key, 16);
+}
+
 void lambda_set_generate(uint8_t* p_lambda_set)
 {
 	uint8_t random_data[16];

@@ -8,21 +8,12 @@
 
 #define ROUNDS 4
 
-/** Constants *****************************************************************/
-static uint8_t key[16] = {
-	0x2b, 0x7e, 0x15, 0x16,
-	0x28, 0xae, 0xd2, 0xa6,
-	0xab, 0xf7, 0x15, 0x88,
-	0x09, 0xcf, 0x4f, 0x03
-};
-
 /** Global variables **********************************************************/
+static uint8_t key[16];
 static uint8_t lambda_set[256][16];
 static uint8_t enc_lambda_set[256][16];
 static int16_t guesses[16][256];
 static int16_t guess_new[16][256];
-static uint8_t solution[16];
-static bool done = false;
 
 /** Function prototypes *******************************************************/
 static void print_state(uint8_t* s);
@@ -83,8 +74,9 @@ static bool is_done(int16_t* array)
 int main(void)
 {
 	lambda_set_seed_rng();
+	lambda_set_generate_key(key);
 
-	printf("The cipher key is:             ");
+	printf("The generated cipher key is:   ");
 	for (int i = 0; i < 16; i++) {
 		printf("%02x", key[i]);
 	}
