@@ -8,7 +8,7 @@ void lambda_set_seed_rng(void);
 
 /** Generate a 16 bytes long random key.
  *
- * key[out]: Ponter to where to store the key.
+ * key[out]: Pointer to where to store the key.
  */
 void lambda_set_generate_key(uint8_t* key);
 
@@ -17,8 +17,8 @@ void lambda_set_generate_key(uint8_t* key);
  * all the messages, except for the first byte, which it's unique for each
  * message.
  *
- * p_lambda_set[out]: Ponter where to store the set, must be 256*16 (4096)
- *                    bytes long.
+ * p_lambda_set[out]: Pointer to where to store the set. It must be 256*16
+ *                    (4096) bytes long.
  */
 void lambda_set_generate(uint8_t* p_lambda_set);
 

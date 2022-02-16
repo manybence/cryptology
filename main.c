@@ -16,8 +16,11 @@ static int16_t guesses[16][256];
 static int16_t guess_new[16][256];
 
 /** Function prototypes *******************************************************/
+// Helper funtion to print AES state
 static void print_state(uint8_t* s);
+// Compare between guesses to rule out false positives
 static void merge_arrays(int16_t* old, int16_t* new_list);
+// Checks if there is onle one guess for each byte position
 static bool is_done(int16_t* array);
 
 /** Function implementations **************************************************/
@@ -74,8 +77,9 @@ static bool is_done(int16_t* array)
 int main(void)
 {
 	lambda_set_seed_rng();
-	lambda_set_generate_key(key);
 
+	// Generate random key
+	lambda_set_generate_key(key);
 	printf("The generated cipher key is:   ");
 	for (int i = 0; i < 16; i++) {
 		printf("%02x", key[i]);
@@ -155,7 +159,7 @@ int main(void)
 		}
 	}
 
-	// Recover cipher key
+	// Recover the original key
 	uint8_t cipher_key[16];
 	inv_key_schedule(round_key, cipher_key, ROUNDS);
 
