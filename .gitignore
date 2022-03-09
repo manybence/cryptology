@@ -3,3 +3,4 @@ bin/
 obj/
 crypto1.*
 *.o
+__pychache__
