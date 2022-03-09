@@ -8,17 +8,14 @@ Power analysis of AES
 """
 
 import math
-import constants
-import scipy.stats
 from typing import List
 
-#Static variables
-path_traces = "data/T3.dat"
-path_inputs = "data/inputs3.dat"
-s_box = constants.S
-inv_s_box = constants.SI
-key = 0x5b
+from aes_s_box import S as S_BOX
 
+
+# Data files
+TRACES_FILE = "data/T3.dat"
+INPUTS_FILES = "data/inputs3.dat"
 
 
 def read_traces(path_traces: str) -> List[float]:
@@ -96,7 +93,7 @@ def calculate_h_table(inputs: List[int]) -> List[List[int]]:
         if key >= len(h_table):
             h_table.append([])
         for inp in inputs:
-            h_table[key].append(hamming_weight(s_box[inp ^ key]))
+            h_table[key].append(hamming_weight(S_BOX[inp ^ key]))
     return h_table
         
         
@@ -156,8 +153,8 @@ def key_predict(coefficients: List[List[float]]) -> tuple[float, int, int]:
 
 def main():
     """ Main function. """
-    traces = read_traces(path_traces)
-    inputs = read_inputs(path_inputs)
+    traces = read_traces(TRACES_FILE)
+    inputs = read_inputs(INPUTS_FILES)
     h_table = calculate_h_table(inputs)
     coeffs = []
 
