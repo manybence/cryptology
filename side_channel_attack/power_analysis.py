@@ -23,6 +23,7 @@ key = 0x5b
 traces = []
 inputs = []
 H_table =[]
+coeffs = []
 
 
 
@@ -68,15 +69,24 @@ def calculate_h_table():
         
 #Calculating the Pearson correlation coefficient between the predicted and measured power traces for each possible key
 def calculate_coeff():
-    predicted = []
-    sampled = []
-    coeff = []
-    for lines in H_table:
-        predicted.append(lines[0])
-    for lines in traces:
-        sampled.append(lines[0])
-    coeff = scipy.stats.pearsonr(predicted, sampled)[0]
-    print(coeff)
+    
+    #Extract predictions for all keys
+    for key in range(len(H_table[0])):
+        
+        #Extract predictions for one given key
+        predicted = []
+        for lines in H_table:
+            predicted.append(lines[key])
+        
+        #Extract 55 time samples for the given key
+        for i in range(len(traces[0])):
+            sampled = []
+            coeff_i = []
+            for lines in traces:
+                sampled.append(lines[i])
+            coeff_i.append(scipy.stats.pearsonr(predicted, sampled)[0])
+        coeffs.append(max(coeff_i))
+    
             
     
 
@@ -88,6 +98,9 @@ read_traces()
 read_inputs()
 calculate_h_table()
 calculate_coeff()
+print(coeffs)
+print(max(coeffs))
+
 
 
 
