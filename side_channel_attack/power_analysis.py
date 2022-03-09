@@ -130,18 +130,28 @@ def pearson_correlation(data_1: List[float], data_2: List[float]) -> float:
     return covariance / math.sqrt(variance_1*variance_2)
 
 
-#Finding the highest correlation among possible key values. 
-#The function assumes that the "coeffs" input stores the related coefficient values in an ordered list.
-def key_predict(coeffs):
-    best = 0
-    key_pred = 0
-    num = 0
-    for i in coeffs:
-        if max(i) > best:
-            best = max(i)
-            key_pred = num
-        num += 1
-    return key_pred, best
+def key_predict(coefficients: List[List[float]]) -> tuple[float, int, int]:
+    """ Finds the highest correlation for the given set of coefficients. Returns
+    three values: The highest correlation, and the key and sample time that
+    produced it.
+
+    :param coefficients: The coefficients, as a 2-dimension list of all the
+                         coefficients for a sample time, and for every key.
+    :type: coefficients: List[List[float]]
+
+    :return: The best coefficient and its key and sample time.
+    :rtype: tuple[float, int, int]
+    """
+    best = 0.0
+    best_key = 0
+    best_sample_time = 0
+    for key in range(len(coefficients)):
+        for sample_time in range(len(coefficients[0])):
+            if coefficients[key][sample_time] > best:
+                best = coefficients[key][sample_time]
+                best_key = key
+                best_sample_time = sample_time
+    return best, best_key, best_sample_time
 
 
 def main():
@@ -155,14 +165,15 @@ def main():
     for key_guess in h_table:
         coeff_i = []
         for samples in traces:
-            #Calculate correlation between the key guess and the current time sample
-            #coeff_i.append(scipy.stats.pearsonr(predicted_i, sampled)[0])
+            #Correlation between the key guess and the current time sample
             coeff_i.append(abs(pearson_correlation(key_guess, samples)))
         coeffs.append(coeff_i)
         
     #Determining the most likely key candidate
-    key, correlation = key_predict(coeffs)
-    print("The most likely key candidate is: ", key, "\nwith the correlation value: ", correlation)
+    correlation, key, time_sample = key_predict(coeffs)
+    print(f"The most likely key candidate is 0x{key:02x} ({key})")
+    print("Correlation value:", correlation)
+    print("Sample time:", time_sample)
 
 
 if __name__ == "__main__":
