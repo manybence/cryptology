@@ -123,13 +123,12 @@ def main():
             for lines in traces:
                 sampled.append(lines[i])        
             #Calculate correlation between the prediction and the current time sample
-            #coeff_i.append(scipy.stats.pearsonr(predicted_i, sampled)[0])
-            coeff_i.append(corr(predicted_i, sampled))
+            coeff_i.append(abs(corr(predicted_i, sampled)))
         coeffs.append(coeff_i)
         
     #Determining the most likely key candidate
     key, correlation = key_predict(coeffs)
-    print("The most likely key is: ", key, "\nwith the correlation value: ", correlation)
+    print("The most likely key candidate is: ", key, "\nwith the correlation value: ", correlation)
 
 
 
