@@ -67,11 +67,7 @@ def calculate_h_table(inputs):
     return H_table
         
         
-#Calculating the Pearson correlation coefficient between the predicted and measured power traces for each possible key
-def calculate_coeff():
-    return 0
-    
-
+#Calculating the Pearson correlation coefficient between the predicted and measured power traces for each possible key   
 def corr(h_values, t_values):
     assert(len(h_values) == len(t_values))
     assert(len(h_values) == 600)
@@ -92,6 +88,19 @@ def corr(h_values, t_values):
     corr /= den
     return corr
 
+
+#Finding the highest correlation among possible key values. 
+#The function assumes that the "coeffs" input stores the related coefficient values in an ordered list.
+def key_predict(coeffs):
+    best = 0
+    key_pred = 0
+    num = 0
+    for i in coeffs:
+        if max(i) > best:
+            best = max(i)
+            key_pred = num
+        num += 1
+    return key_pred, best
 
 
 #Main function*****************************************************************************
@@ -117,22 +126,17 @@ def main():
             #coeff_i.append(scipy.stats.pearsonr(predicted_i, sampled)[0])
             coeff_i.append(corr(predicted_i, sampled))
         coeffs.append(coeff_i)
+        
+    #Determining the most likely key candidate
+    key, correlation = key_predict(coeffs)
+    print("The most likely key is: ", key, "\nwith the correlation value: ", correlation)
 
 
-    best = 0
-    for i in coeffs:
-        if max(i) > best: best = max(i)
-    print(coeffs)
-    print(best)
 
 
 if __name__ == "__main__":
     main()
             
-            
-#print(H_table[0])
-#print(coeffs)
-#print(max(coeffs))
 
 
 
