@@ -8,6 +8,7 @@ Power analysis of AES
 """
 
 import csv
+import math
 import constants
 import scipy.stats
 
@@ -70,8 +71,26 @@ def calculate_h_table(inputs):
 def calculate_coeff():
     return 0
     
-            
-    
+
+def corr(h_values, t_values):
+    assert(len(h_values) == len(t_values))
+    assert(len(h_values) == 600)
+
+    h_avg = sum(h_values) / len(h_values)
+    t_avg = sum(t_values) / len(t_values)
+
+    h_var = 0.0
+    t_var = 0.0
+    for i in range(len(h_values)):
+        h_var += (h_values[i] - h_avg)*(h_values[i] - h_avg)
+        t_var += (t_values[i] - t_avg)*(t_values[i] - t_avg)
+    den = math.sqrt(h_var*t_var)
+
+    corr = 0.0
+    for i in range(len(h_values)):
+        corr += (h_values[i]-h_avg)*(t_values[i]-t_avg)
+    corr /= den
+    return corr
 
 
 
@@ -95,7 +114,8 @@ def main():
             for lines in traces:
                 sampled.append(lines[i])        
             #Calculate correlation between the prediction and the current time sample
-            coeff_i.append(scipy.stats.pearsonr(predicted_i, sampled)[0])
+            #coeff_i.append(scipy.stats.pearsonr(predicted_i, sampled)[0])
+            coeff_i.append(corr(predicted_i, sampled))
         coeffs.append(coeff_i)
 
 
