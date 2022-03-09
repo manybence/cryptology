@@ -98,7 +98,7 @@ traces = read_traces(path_traces)
 inputs = read_inputs(path_inputs)
 H_table = calculate_h_table(inputs)
 coeffs = calculate_coeff()
-print(H_table[0])
+#print(H_table[0])
 #print(coeffs)
 #print(max(coeffs))
 
