@@ -77,32 +77,37 @@ def calculate_coeff():
 
 #Main function*****************************************************************************
 
-traces = read_traces(path_traces)
-inputs = read_inputs(path_inputs)
-H_table = calculate_h_table(inputs)
-coeffs = []
+def main():
+    traces = read_traces(path_traces)
+    inputs = read_inputs(path_inputs)
+    H_table = calculate_h_table(inputs)
+    coeffs = []
 
-#Extract predictions for each possible key
-for key in range(len(H_table[0])):        
-    predicted_i = []
-    for lines in H_table:
-        predicted_i.append(lines[key])    
-    #Extract each time samples for the given key
-    coeff_i = []
-    for i in range(len(traces[0])):
-        sampled = []
-        for lines in traces:
-            sampled.append(lines[i])        
-        #Calculate correlation between the prediction and the current time sample
-        coeff_i.append(scipy.stats.pearsonr(predicted_i, sampled)[0])
-    coeffs.append(coeff_i)
+    #Extract predictions for each possible key
+    for key in range(len(H_table[0])):        
+        predicted_i = []
+        for lines in H_table:
+            predicted_i.append(lines[key])    
+        #Extract each time samples for the given key
+        coeff_i = []
+        for i in range(len(traces[0])):
+            sampled = []
+            for lines in traces:
+                sampled.append(lines[i])        
+            #Calculate correlation between the prediction and the current time sample
+            coeff_i.append(scipy.stats.pearsonr(predicted_i, sampled)[0])
+        coeffs.append(coeff_i)
 
 
-best = 0
-for i in coeffs:
-    if max(i) > best: best = max(i)
-print(coeffs)
-print(best)
+    best = 0
+    for i in coeffs:
+        if max(i) > best: best = max(i)
+    print(coeffs)
+    print(best)
+
+
+if __name__ == "__main__":
+    main()
             
             
 #print(H_table[0])
