@@ -127,7 +127,7 @@ def pearson_correlation(data_1: List[float], data_2: List[float]) -> float:
     return covariance / math.sqrt(variance_1*variance_2)
 
 
-def key_predict(coefficients: List[List[float]]) -> tuple[float, int, int]:
+def key_predict(coefficients: List[List[float]]) -> "tuple[float, int, int]":
     """ Finds the highest correlation for the given set of coefficients. Returns
     three values: The highest correlation, and the key and sample time that
     produced it.
