@@ -13,7 +13,7 @@ from random import randrange
 import timeit
 
 #Recommended maximum size = 200
-size = 300
+size = 200
 
 def generate_key(size: int) -> int:
     """
@@ -41,6 +41,12 @@ def generate_key(size: int) -> int:
     print("The private keys are:", p,",", q) 
     return p*q
   
+def brute_force(public_key: int) -> List[int]:
+    
+    for i in range(2, public_key):
+        if public_key % i == 0:
+            keys = [i, int(public_key/i)]
+            return keys
  
   
 def find_period(a: int, N: int) -> int:
@@ -68,7 +74,7 @@ def find_period(a: int, N: int) -> int:
         if (a**r)%N == 1:
             return r
 
-def find_factor(N: int) -> int:
+def shors_algorithm(N: int) -> int:
     """
     Finding the two prime factors of the given number N.
 
@@ -106,24 +112,28 @@ def find_factor(N: int) -> int:
                             break
         except:
             continue
-    return factor
+    return [factor, int(N/factor)]
 
 def main():
     """ Main function. """
-    
-    start = timeit.default_timer()
    
     print("Generating the private and public keys")
     public_key = generate_key(size)
     print("The public key is: ", public_key)
     
-    print("\nExecuting Shor's algorithm")
-    factor1 = find_factor(public_key)   
-    factor2 = int(public_key/factor1)
-    print("Factors of", public_key," are :", factor1, ",", factor2) 
-    
+    print("\nExecuting brute force attack")
+    start = timeit.default_timer()
+    factor1, factor2 = brute_force(public_key)
+    print("The private keys are:", factor1, ",", factor2)
     end = timeit.default_timer()
-    print("Time required for the attack:", round(end - start, 3), "seconds")
+    print("Processing time:", round(end - start, 3), "seconds")
+    
+    print("\nExecuting Shor's algorithm")
+    start = timeit.default_timer()
+    factor1, factor2 = shors_algorithm(public_key)  
+    print("The private keys are:", factor1, ",", factor2)
+    end = timeit.default_timer() 
+    print("Processing time:", round(end - start, 3), "seconds")
 
 
 if __name__ == "__main__":
