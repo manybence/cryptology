@@ -2,17 +2,18 @@
 """
 Created on 2022/04/20
 
-Implementation of Shor's algorithm
+Implementation of cracking RSA by using Shor's algorithm
 @author: Bence Mány, Vicente Bartual Ferran
 """
 
-#from typing import List
+from typing import List
 import math
 import sympy
 from random import randrange
+import timeit
 
-#It doesn't really work over 100.
-size = 100
+#Recommended maximum size = 200
+size = 300
 
 def generate_key(size: int) -> int:
     """
@@ -32,13 +33,16 @@ def generate_key(size: int) -> int:
     p = randrange(size)
     while not sympy.isprime(p):
         p = randrange(size)
-    print("p is", p) 
+    
     q = randrange(size)
     while not (sympy.isprime(q) and not p == q):
         q = randrange(size)
-    print("q is", q) 
+        
+    print("The private keys are:", p,",", q) 
     return p*q
-    
+  
+ 
+  
 def find_period(a: int, N: int) -> int:
     """
     Finds the smallest 'r' value that satisfies: (a**r)%N = 1
@@ -106,13 +110,20 @@ def find_factor(N: int) -> int:
 
 def main():
     """ Main function. """
-   
-    N = generate_key(size)
-    print("The key is: ", N)
     
-    factor1 = find_factor(N)   
-    factor2 = int(N/factor1)
-    print("Factors found for", N,":", factor1, ",", factor2) 
+    start = timeit.default_timer()
+   
+    print("Generating the private and public keys")
+    public_key = generate_key(size)
+    print("The public key is: ", public_key)
+    
+    print("\nExecuting Shor's algorithm")
+    factor1 = find_factor(public_key)   
+    factor2 = int(public_key/factor1)
+    print("Factors of", public_key," are :", factor1, ",", factor2) 
+    
+    end = timeit.default_timer()
+    print("Time required for the attack:", round(end - start, 3), "seconds")
 
 
 if __name__ == "__main__":
