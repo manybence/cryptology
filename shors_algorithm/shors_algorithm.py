@@ -15,11 +15,11 @@ import timeit
 #TODO: Simulation for different key sizes -> time elapsed - Brute-force vs Shor's
 #TODO: Proper RSA encryption?
 #TODO: Proper key generation
-#TODO: Smarter brute force attack?
+#TODO: Smarter brute force attack? Storing prime numbers?
 
 #RSA key size = 1028 bit
-#Recommended maximum size = 50 bit
-key_size = 40
+#Recommended maximum size = 20 bit
+key_size = 20
 
 def generate_keys(key_size: int) -> int:
     """
@@ -121,10 +121,8 @@ def shors_algorithm(N: int) -> int:
             else:
                 r = find_period(a, N)
                 if r%2 > 0:
-                    #Odd r value
                     continue
                 else:
-                    #Even r value
                     if (a**(r/2))%N == N-1:
                         continue
                     else:
