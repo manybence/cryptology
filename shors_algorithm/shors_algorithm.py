@@ -12,24 +12,32 @@ import sympy
 from random import randrange
 import timeit
 
-#Recommended maximum size = 200
-size = 200
+#TODO: Simulation for different key sizes -> time elapsed - Brute-force vs Shor's
+#TODO: Proper RSA encryption?
+#TODO: Proper key generation
+#TODO: Smarter brute force attack?
 
-def generate_key(size: int) -> int:
+#RSA key size = 1028 bit
+#Recommended maximum size = 50 bit
+key_size = 40
+
+def generate_keys(key_size: int) -> int:
     """
     Generating two unique prime numbers (the secret keys), then combining them to create the public key.
 
     Parameters
     ----------
     size : int
-        The highest number the secret key can be.
+        The size of the public key (in bits). RSA uses 1028 bits, but that would be uncrackable by a normal computer. Recommended value is max 60.
 
     Returns
     -------
     int
-        The public key. It has to be the product of two unique prime numbers.
+        The generated public key, which is the product of the two private keys.
 
     """
+    size = 2**int(key_size/2)
+    
     p = randrange(size)
     while not sympy.isprime(p):
         p = randrange(size)
@@ -42,12 +50,25 @@ def generate_key(size: int) -> int:
     return p*q
   
 def brute_force(public_key: int) -> List[int]:
+    """
+    Brute force attack to crack RSA.
+
+    Parameters
+    ----------
+    public_key : int
+        The public key which needs to be cracked. It is the product of two unique primes.
+
+    Returns
+    -------
+    List[int]
+        The two private keys.
+
+    """
     
     for i in range(2, public_key):
         if public_key % i == 0:
             keys = [i, int(public_key/i)]
             return keys
- 
   
 def find_period(a: int, N: int) -> int:
     """
@@ -118,7 +139,7 @@ def main():
     """ Main function. """
    
     print("Generating the private and public keys")
-    public_key = generate_key(size)
+    public_key = generate_keys(key_size)
     print("The public key is: ", public_key)
     
     print("\nExecuting brute force attack")
