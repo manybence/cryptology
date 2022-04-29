@@ -11,6 +11,8 @@ import math
 import sympy
 from random import randrange
 import timeit
+import matplotlib.pyplot as plt
+
 
 #TODO: Simulation for different key sizes -> time elapsed - Brute-force vs Shor's
 #TODO: Proper RSA encryption?
@@ -19,7 +21,7 @@ import timeit
 
 #RSA key size = 1028 bit
 #Recommended maximum size = 20 bit
-key_size = 20
+key_size = 18
 
 def generate_keys(key_size: int) -> int:
     """
@@ -36,18 +38,26 @@ def generate_keys(key_size: int) -> int:
         The generated public key, which is the product of the two private keys.
 
     """
-    size = 2**int(key_size/2)
-    
-    p = randrange(size)
-    while not sympy.isprime(p):
-        p = randrange(size)
-    
-    q = randrange(size)
-    while not (sympy.isprime(q) and not p == q):
-        q = randrange(size)
+    if key_size >= 4:
+        size = 2**int(key_size/2)
         
-    print("The private keys are:", p,",", q) 
-    return p*q
+        p = randrange(size)
+        while not sympy.isprime(p):
+            p = randrange(size)
+        
+        q = randrange(size)
+        while not (sympy.isprime(q) and not p == q):
+            q = randrange(size)
+            
+        n = p*q
+        
+        #l = math.lcm(p-1, q-1)
+            
+        print("The private keys are:", p,",", q) 
+        return p*q
+    else:
+        print("Incorrect key size. It has to be at least 4 bits.")
+        return -1
   
 def brute_force(public_key: int) -> List[int]:
     """
@@ -90,6 +100,7 @@ def find_period(a: int, N: int) -> int:
     """
 
     r = 0
+    print("Searching for period...")
     while True:
         r += 1
         if (a**r)%N == 1:
@@ -110,10 +121,10 @@ def shors_algorithm(N: int) -> int:
         One of the secret keys (one of the prime factors of the given number).
 
     """
-    factor = -1
     while True:
         try:
             a = randrange(N-2) + 2
+            print("Trying new 'a' value")
             k = math.gcd(a, N)
             if k > 1: 
                 factor = k
@@ -135,24 +146,41 @@ def shors_algorithm(N: int) -> int:
 
 def main():
     """ Main function. """
-   
-    print("Generating the private and public keys")
-    public_key = generate_keys(key_size)
-    print("The public key is: ", public_key)
     
-    print("\nExecuting brute force attack")
-    start = timeit.default_timer()
-    factor1, factor2 = brute_force(public_key)
-    print("The private keys are:", factor1, ",", factor2)
-    end = timeit.default_timer()
-    print("Processing time:", round(end - start, 3), "seconds")
-    
-    print("\nExecuting Shor's algorithm")
-    start = timeit.default_timer()
-    factor1, factor2 = shors_algorithm(public_key)  
-    print("The private keys are:", factor1, ",", factor2)
-    end = timeit.default_timer() 
-    print("Processing time:", round(end - start, 3), "seconds")
+    times_shor = []
+    times_bf = []
+    sizes = []
+    #Recommended range: (4, 19)
+    for i in range(4, 23):
+        if i%2 == 0:
+            sizes.append(i)
+            
+            print("\n\nGenerating the private and public keys")
+            public_key = generate_keys(i)
+            print("The public key is: ", public_key)
+            
+            print("\nExecuting brute force attack")
+            start = timeit.default_timer()
+            factor1, factor2 = brute_force(public_key)
+            print("The private keys are:", factor1, ",", factor2)
+            end = timeit.default_timer()
+            print("Processing time:", round(end - start, 6), "seconds")
+            times_bf.append(round(end - start, 6))
+            
+            print("\nExecuting Shor's algorithm")
+            start = timeit.default_timer()
+            factor1, factor2 = shors_algorithm(public_key)  
+            print("The private keys are:", factor1, ",", factor2)
+            end = timeit.default_timer() 
+            print("Processing time:", round(end - start, 6), "seconds")
+            times_shor.append(round(end - start, 6))
+        
+    plt.plot(sizes, times_shor, label = "Shor's alg.")
+    plt.plot(sizes, times_bf, label = "Brute-force")
+    plt.ylabel('Processing time [s]')
+    plt.xlabel('Key size [bits]')
+    plt.legend()
+    plt.show()
 
 
 if __name__ == "__main__":
