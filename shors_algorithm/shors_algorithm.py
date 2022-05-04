@@ -50,99 +50,135 @@ def generate_keys(key_size: int) -> int:
             q = randrange(size)
             
         n = p*q
-        
-        #l = math.lcm(p-1, q-1)
+
+        e, d = calculate_e_and_d(p, q)
             
-        print("The private keys are:", p,",", q) 
-        return p*q
+        print(f"The prime factors are {p} and {q}")
+        print(f"The public key (n,e) is ({n},{e})")
+        print(f"The private key (n,d) is ({n},{d})")
+        return n, e, d
     else:
         print("Incorrect key size. It has to be at least 4 bits.")
         return -1
+
+
+def calculate_e_and_d(p: int, q) -> tuple[int, int]:
+    totient_func = math.lcm(p-1, q-1)
+    e = 3
+    while True:
+        if sympy.isprime(e) and math.gcd(totient_func, e) == 1:
+            break
+        e += 1
+    d = multiplicative_inverse(e, totient_func)
+    return e, d
+
+
+def multiplicative_inverse(e, phi):
+    d = 0
+    x1 = 0
+    x2 = 1
+    y1 = 1
+    temp_phi = phi
+
+    while e > 0:
+        temp1 = temp_phi//e
+        temp2 = temp_phi - temp1*e
+        temp_phi = e
+        e = temp2
+
+        x = x2 - temp1 * x1
+        y = d - temp1 * y1
+
+        x2 = x1
+        x1 = x
+        d = y1
+        y1 = y
+
+    if temp_phi == 1:
+        return d + phi
+
   
-def brute_force(public_key: int) -> List[int]:
+def brute_force(n: int) -> tuple[int, int]:
     """
-    Brute force attack to crack RSA.
+    Finds the two prime factors of the given number n by brute force.
 
     Parameters
     ----------
-    public_key : int
-        The public key which needs to be cracked. It is the product of two unique primes.
+    n : int
+        The number which needs to be factorized. It is the product of two unique primes.
 
     Returns
     -------
-    List[int]
-        The two private keys.
-
+    tuple[int,int]
+        The number's two prime factors.
     """
-    
-    for i in range(2, public_key):
-        if public_key % i == 0:
-            keys = [i, int(public_key/i)]
-            return keys
+    for i in range(2, n):
+        if n % i == 0:
+            return i, int(n/1)
+    print("ERROR!")
   
-def find_period(a: int, N: int) -> int:
+
+def find_period(a: int, n: int) -> int:
     """
-    Finds the smallest 'r' value that satisfies: (a**r)%N = 1
+    Finds the smallest 't' value that satisfies: (a**t)%N = 1
     This is the quantum step. It can take loooong time.
 
     Parameters
     ----------
     a : int
         An intermediate variable for finding good guesses.
-    N : int
-        The public key.
+    n : int
+        The number to be factorized.
 
     Returns
     -------
     int
-        Returns the 'r' value which is then being used to create a better guess.
+        Returns the 't' value which is then being used to create a better guess.
 
     """
-
-    r = 0
+    t = 0
     print("Searching for period...")
     while True:
-        r += 1
-        if (a**r)%N == 1:
-            return r
+        t += 1
+        if (a**t)%n == 1:
+            return t
 
-def shors_algorithm(N: int) -> int:
+
+def shors_algorithm(n: int) -> int:
     """
-    Finding the two prime factors of the given number N.
+    Finds the two prime factors of the given number N using Shor's algorithm.
 
     Parameters
     ----------
-    N : int
-        The public key, which is the product of two unique primes.
+    n : int
+        The number to be factorized. It is the product of two unique primes.
 
     Returns
     -------
     int
-        One of the secret keys (one of the prime factors of the given number).
-
+        The number's two prime factors.
     """
+    a = 1
     while True:
-        try:
-            a = randrange(N-2) + 2
-            print("Trying new 'a' value")
-            k = math.gcd(a, N)
-            if k > 1: 
-                factor = k
-                break
+        #a = randrange(n-2) + 2
+        a += 1
+        print(f"Trying new 'a' value ({a})")
+        k = math.gcd(a, n)
+        if k > 1: 
+            factor = k
+            break
+        else:
+            t = find_period(a, n)
+            print(t)
+            if t%2 > 0:
+                continue
+            elif (a**(t/2))%n == n-1:
+                continue
             else:
-                r = find_period(a, N)
-                if r%2 > 0:
-                    continue
-                else:
-                    if (a**(r/2))%N == N-1:
-                        continue
-                    else:
-                        factor = math.gcd(int(a**(r/2) + 1), N)
-                        if factor > 1:
-                            break
-        except:
-            continue
-    return [factor, int(N/factor)]
+                factor = math.gcd(int(a**(t/2) + 1), n)
+                if factor > 1:
+                    break
+    return factor, int(n/factor)
 
 def main():
     """ Main function. """
@@ -151,26 +187,28 @@ def main():
     times_bf = []
     sizes = []
     #Recommended range: (4, 19)
-    for i in range(4, 23):
+    for i in range(4, 17):
         if i%2 == 0:
             sizes.append(i)
             
             print("\n\nGenerating the private and public keys")
-            public_key = generate_keys(i)
-            print("The public key is: ", public_key)
+            print(f"Key size: {i}")
+            n, e, d = generate_keys(i)
             
             print("\nExecuting brute force attack")
             start = timeit.default_timer()
-            factor1, factor2 = brute_force(public_key)
-            print("The private keys are:", factor1, ",", factor2)
+            factor1, factor2 = brute_force(n)
+            _, d = calculate_e_and_d(factor1, factor2)
+            print("The private key (n, d) is ({n}, {d})")
             end = timeit.default_timer()
             print("Processing time:", round(end - start, 6), "seconds")
             times_bf.append(round(end - start, 6))
             
             print("\nExecuting Shor's algorithm")
             start = timeit.default_timer()
-            factor1, factor2 = shors_algorithm(public_key)  
-            print("The private keys are:", factor1, ",", factor2)
+            factor1, factor2 = shors_algorithm(n)  
+            _, d = calculate_e_and_d(factor1, factor2)
+            print("The private key (n, d) is ({n}, {d})")
             end = timeit.default_timer() 
             print("Processing time:", round(end - start, 6), "seconds")
             times_shor.append(round(end - start, 6))
