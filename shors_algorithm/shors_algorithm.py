@@ -92,7 +92,7 @@ def calculate_e_and_d(p: int, q: int) -> "tuple[int, int]":
 
     while temp_e > 0:
         temp1 = temp_totient//temp_e
-        temp2 = temp_totient - temp1*e
+        temp2 = temp_totient - temp1*temp_e
         temp_totient = temp_e
         temp_e = temp2
 
@@ -106,6 +106,8 @@ def calculate_e_and_d(p: int, q: int) -> "tuple[int, int]":
 
     if temp_totient == 1:
         d += totient_n
+
+    assert((e*d) % totient_n == 1)
     return e, d
 
 
@@ -188,6 +190,7 @@ def shors_algorithm(n: int) -> int:
             elif (a**(t//2)) % n == n-1:
                 continue
             else:
+                print(f"Period t found: {t}")
                 factor = math.gcd(a**(t//2)+1, n)
                 if factor > 1:
                     break
@@ -225,13 +228,13 @@ def main():
             start = timeit.default_timer()
             factor1, factor2 = shors_algorithm(n)  
             _, d = calculate_e_and_d(factor1, factor2)
-            print("The private key (n, d) is ({n}, {d})")
+            print(f"The private key (n, d) is ({n}, {d})")
             end = timeit.default_timer() 
             print("Processing time:", round(end - start, 6), "seconds")
             time_shor_avg += end - start
         times_shor.append(time_shor_avg/AVERAGE)
         times_bf.append(time_bf_avg/AVERAGE)
-        
+
     plt.plot(sizes, times_shor, label = "Shor's alg.")
     plt.plot(sizes, times_bf, label = "Brute-force")
     plt.ylabel('Processing time [s]')
